@@ -36,8 +36,8 @@ namespace ResourceViewerPlugin
         public void Initialize()
         {
             regionManager.AddToRegion("AssemblyTreeViewContextMenuRegion", assemblyNodeContextMenu);
-            regionManager.AddToRegion("DefaultResourceTreeViewContextMenuRegion", assemblyNodeContextMenu);
-            regionManager.AddToRegion("ResourceTreeViewContextMenuRegion", assemblyNodeContextMenu);
+            //regionManager.AddToRegion("DefaultResourceTreeViewContextMenuRegion", assemblyNodeContextMenu);
+            //regionManager.AddToRegion("ResourceTreeViewContextMenuRegion", assemblyNodeContextMenu);
         }
 
         public void OnImportsSatisfied()
@@ -50,16 +50,16 @@ namespace ResourceViewerPlugin
         private void ViewBitmaps()
         {
             var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-            string assemblyFile = GetFilePath();
+			IAssemblyDefinition assembly = GetAssemblyDefinition();
 
             var imb = new ImageBrowserView();
             regionManager.AddToRegion("PluginRegion", imb);
             imb.Closing += CloseView;
-            imb.AssemblyName = Path.GetFileName(assemblyFile);
+            imb.AssemblyName = Path.GetFileName(assembly.MainModule.FilePath);
 
             imb.Status = "Scanning for images...";
             imb.ProgressOverlayVisibility = Visibility.Visible;
-            ResourceLoader.LoadBitmapsFromAssembly(assemblyFile, i => imb.ProgressPercentage = i)
+            ResourceLoader.LoadBitmapsFromAssembly(assembly, i => imb.ProgressPercentage = i)
                 .ContinueWith(r =>
                 {
                     imb.Images.AddRange(r.Result);
@@ -86,24 +86,28 @@ namespace ResourceViewerPlugin
             selectedItem = obj;
         }
 
-        private string GetFilePath()
+        private IAssemblyDefinition GetAssemblyDefinition()
         {
             if (selectedItem == null)
             {
-                return string.Empty;
+				return null;
             }
+
             switch (selectedItem.TreeNodeType)
             {
                 case TreeNodeType.AssemblyDefinition:
-                    return ((IAssemblyDefinitionTreeViewItem)selectedItem).AssemblyDefinition.MainModule.FilePath;
+                    return ((IAssemblyDefinitionTreeViewItem)selectedItem).AssemblyDefinition;
+
+				/*
                 case TreeNodeType.AssemblyModuleDefinition:
                     return ((IAssemblyModuleDefinitionTreeViewItem)selectedItem).ModuleDefinition.FilePath;
                 case TreeNodeType.AssemblyResource:
                     return ((IResourceTreeViewItem)selectedItem).AssemblyFile;
                 case TreeNodeType.NotSupported:
                     return ((INotSupportedTreeViewItem)selectedItem).FilePath;
+				*/
                 default:
-                    return string.Empty;
+                    return null;
             }
         }
     }

@@ -9,33 +9,53 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using JustDecompile.API.Core;
 
 namespace ResourceViewerPlugin
 {
     public class ResourceLoader
     {
-        public static Task<IList<BitmapContainer>> LoadBitmapsFromAssembly(string assemblyFile, Action<int> progressChangedCallback = null)
+
+		private static ICollection<IResource> CollectResources(IAssemblyDefinition assembly)
+		{
+			List<IResource> result = new List<IResource>();
+
+			foreach (IResource resource in assembly.MainModule.Resources)
+			{
+				result.Add(resource);
+			}
+
+			return result;
+		}
+
+        public static Task<IList<BitmapContainer>> LoadBitmapsFromAssembly(IAssemblyDefinition assembly, Action<int> progressChangedCallback = null)
         {
             return Task.Factory.StartNew<IList<BitmapContainer>>(() =>
             {
                 var bitmaps = new List<BitmapContainer>();
-                Assembly loadAssembly = Assembly.LoadFile(assemblyFile);
 
-                var resourceNames = loadAssembly.GetManifestResourceNames();
+				ICollection<IResource> resources = CollectResources(assembly);
 
-                int total = resourceNames.Length;
-                for (int i = 0; i < resourceNames.Length; i++)
+                int total = resources.Count;
+
+				int progressCount = 0;
+                //for (int i = 0; i < resources.Count; i++)
+
+				foreach (IResource resource in resources)
                 {
                     if (progressChangedCallback != null)
-                        progressChangedCallback.Invoke((int)(100.0 * i / total));
+                        progressChangedCallback.Invoke((int)(100.0 * progressCount / total));
 
-                    string resource = resourceNames[i];
+                    if (string.IsNullOrWhiteSpace(resource.Name)) continue;
 
-                    if (string.IsNullOrWhiteSpace(resource)) continue;
+					if (resource.ResourceType != ResourceType.Embedded) continue;
 
-                    if (resource.EndsWith(".resources"))
+					IEmbeddedResource embeddedResource = resource as IEmbeddedResource;
+					if (embeddedResource == null) continue;
+
+                    if (resource.Name.EndsWith(".resources"))
                     {
-                        using (ResourceReader resourceReader = new ResourceReader(loadAssembly.GetManifestResourceStream(resource)))
+                        using (ResourceReader resourceReader = new ResourceReader(embeddedResource.GetResourceStream()))
                         {
                             var iterator = resourceReader.GetEnumerator();
                             while (iterator.MoveNext())
@@ -62,7 +82,7 @@ namespace ResourceViewerPlugin
 
                                 try
                                 {
-                                    BitmapSource bitmap = LoadBitmapImage(loadAssembly.GetManifestResourceStream(rkey));
+									BitmapSource bitmap = LoadBitmapImage(embeddedResource.GetResourceStream());
 
                                     bitmaps.Add(new BitmapContainer
                                     {
@@ -80,11 +100,11 @@ namespace ResourceViewerPlugin
 
                     try
                     {
-                        var bitmap = LoadBitmapImage(loadAssembly.GetManifestResourceStream(resource));
+						var bitmap = LoadBitmapImage(embeddedResource.GetResourceStream());
 
                         bitmaps.Add(new BitmapContainer
                         {
-                            Name = resource,
+                            Name = resource.Name,
                             Bitmap = bitmap
                         });
                     }
@@ -92,6 +112,8 @@ namespace ResourceViewerPlugin
                     {
                         /*not a bitmap */
                     }
+
+					progressCount++;
                 }
                 return bitmaps;
             });
