@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 
@@ -15,7 +16,6 @@ namespace ResourceViewerPlugin
         {
             InitializeComponent();
         }
-
 
         public BitmapContainer Image
         {
@@ -50,7 +50,23 @@ namespace ResourceViewerPlugin
 
         private void SaveClick(object sender, RoutedEventArgs e)
         {
-            Image.ShowExportDialog();
+            bool doExport = true;
+            while (doExport)
+            {
+                try
+                {
+                    Image.ShowExportDialog();
+                    doExport = false;
+                }
+                catch (Exception err)
+                {
+                    doExport = MessageBox.Show(
+                        this,
+                        "Error Exporting Image. Retry?\r\n" + err.Message,
+                        "Error Exporting Image.",
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+                }
+            }
         }
     }
 }
