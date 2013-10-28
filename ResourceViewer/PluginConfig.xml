@@ -9,7 +9,7 @@
   <Version>1.0.0.0</Version>
   <SupportedJDversion>2013.1.305.4</SupportedJDversion>
   <Guid>B2435323-152B-41B8-91CC-810418974100</Guid>
-  <Url>http://www.telerik.com/products/decompiler/extensions.aspx#my-justdecompile-plug-in</Url>
+  <Url>https://github.com/BinaryConstruct/ResourceViewer</Url>
   <Licenses>
     <License Title="LICENSE Resource Viewer">
       <![CDATA[
