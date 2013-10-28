@@ -1,6 +1,7 @@
 ### JustDecompile Resource Viewer
 A JustDecompile PlugIn to view and export bitmap resources.
 
+BinaryConstruct 2013
 
 ## License
     Microsoft Public License (MS-PL)
