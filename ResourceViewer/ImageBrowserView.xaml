@@ -50,6 +50,11 @@
                     <MenuItem Header="Export All" Click="ExportAllClick" />
                 </ContextMenu>
             </ListView.ContextMenu>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <EventSetter Event="MouseDoubleClick" Handler="ViewFullSizeClick" />
+                </Style>
+            </ListBox.ItemContainerStyle>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Horizontal" />

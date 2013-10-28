@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitmapContainer.cs" />
+    <Compile Include="BitmapContainerDialogExtensions.cs" />
     <Compile Include="ImageBrowserView.xaml.cs">
       <DependentUpon>ImageBrowserView.xaml</DependentUpon>
     </Compile>

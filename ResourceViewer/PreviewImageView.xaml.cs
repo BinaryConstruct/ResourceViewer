@@ -41,5 +41,16 @@ namespace ResourceViewerPlugin
         }
 
         #endregion
+
+        private void CloseClick(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+
+        private void SaveClick(object sender, RoutedEventArgs e)
+        {
+            Image.ShowExportDialog();
+        }
     }
 }

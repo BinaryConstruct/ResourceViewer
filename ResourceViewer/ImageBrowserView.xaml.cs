@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 
@@ -78,131 +79,36 @@ namespace ResourceViewerPlugin
 
         private void ViewFullSizeClick(object sender, RoutedEventArgs e)
         {
-            PreviewImageView pview = new PreviewImageView();
-            pview.Image = SelectedImage;
-            pview.ShowDialog();
+            SelectedImage.ShowPreviewDialog();
         }
 
         private void ExportSelectedClick(object sender, RoutedEventArgs e)
         {
-            if (SelectedImage == null) return;
-
             Status = string.Empty;
-            SaveFileDialog saveImg = new SaveFileDialog();
-            saveImg.Filter = "Jpeg Image|*.jpg|Png Image|*.png|Bitmap Image|*.bmp|Tiff Image|*.tiff|Windows Media Bitmap|*.wmb";
-            saveImg.Title = "Export Single Image";
-            saveImg.FileName = SelectedImage.Name;
-            saveImg.AddExtension = true;
-            saveImg.DefaultExt = "*.png";
-
-            saveImg.CheckPathExists = true;
-
-            BitmapEncoder encoder = null;
-            if (saveImg.ShowDialog() == true)
+            try
             {
-                string ext = Path.GetExtension(saveImg.FileName);
-                switch (ext.ToLower())
-                {
-                    case ".png":
-                        encoder = new PngBitmapEncoder();
-                        break;
-                    case ".bmp":
-                        encoder = new BmpBitmapEncoder();
-                        break;
-                    case ".jpeg":
-                    case ".jpg":
-                        encoder = new JpegBitmapEncoder();
-                        break;
-                    case ".tiff":
-                        encoder = new TiffBitmapEncoder();
-                        break;
-                    case ".wmb":
-                        encoder = new WmpBitmapEncoder();
-                        break;
-                    default:
-                        encoder = new BmpBitmapEncoder();
-                        saveImg.FileName += ".bmp";
-                        break;
-                }
-
-                try
-                {
-                    encoder.Frames.Add(BitmapFrame.Create(SelectedImage.Bitmap));
-                    using (FileStream fs = new FileStream(saveImg.FileName, FileMode.OpenOrCreate))
-                    {
-                        encoder.Save(fs);
-                        fs.Close();
-                    }
-                }
-                catch (Exception err)
-                {
-                    Status = err.Message;
-                }
+                SelectedImage.ShowExportDialog();
+            }
+            catch (Exception err)
+            {
+                Status = err.Message;
             }
         }
 
         private void ExportAllClick(object sender, RoutedEventArgs e)
         {
             Status = string.Empty;
-            SaveFileDialog saveImg = new SaveFileDialog();
-            saveImg.Filter = "Png Image|*.png|Jpeg Image|*.jpg|Bitmap Image|*.bmp|Tiff Image|*.tiff|Windows Media Bitmap|*.wmb";
-            saveImg.Title = "Export All Image";
-            saveImg.FileName = "[Multiple Files - Choose File Type]";
-            saveImg.AddExtension = false;
-            saveImg.FilterIndex = 0;
-
-            saveImg.CheckPathExists = true;
-
-
-            if (saveImg.ShowDialog() == true)
+            try
             {
-                string ext = saveImg.Filter.Split('|')[saveImg.FilterIndex / 2 + 1].TrimStart('*');
-                string path = Path.GetDirectoryName(saveImg.FileName);
-                foreach (var bmp in Images)
-                {
-                    try
-                    {
-                        BitmapEncoder encoder = null;
-
-                        switch (ext.ToLower())
-                        {
-                            case ".png":
-                                encoder = new PngBitmapEncoder();
-                                break;
-                            case ".bmp":
-                                encoder = new BmpBitmapEncoder();
-                                break;
-                            case ".jpeg":
-                            case ".jpg":
-                                encoder = new JpegBitmapEncoder();
-                                break;
-                            case ".tiff":
-                                encoder = new TiffBitmapEncoder();
-                                break;
-                            case ".wmb":
-                                encoder = new WmpBitmapEncoder();
-                                break;
-                            default:
-                                encoder = new BmpBitmapEncoder();
-                                saveImg.FileName += ".bmp";
-                                break;
-                        }
-
-                        encoder.Frames.Add(BitmapFrame.Create(bmp.Bitmap));
-                        using (FileStream fs = new FileStream(Path.Combine(path, bmp.Name + ext), FileMode.OpenOrCreate))
-                        {
-                            encoder.Save(fs);
-                            fs.Close();
-                        }
-                    }
-                    catch (Exception err)
-                    {
-                        Status = err.Message;
-                    }
-                }
+                Images.ShowExportMultipleDialog();
+            }
+            catch (Exception err)
+            {
+                Status = err.Message;
             }
         }
 
+      
         #region INotifyPropertyChanged Implementation
 
         public event PropertyChangedEventHandler PropertyChanged;

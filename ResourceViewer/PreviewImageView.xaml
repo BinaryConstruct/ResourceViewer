@@ -3,9 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        mc:Ignorable="d" Title="{Binding Image.Name}" WindowStartupLocation="CenterOwner"
+        mc:Ignorable="d" Title="{Binding Image.Name}" WindowStartupLocation="CenterOwner" MinHeight="100" MinWidth="100"
         d:DesignHeight="300" d:DesignWidth="300" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
-        <Image Source="{Binding Image.Bitmap}" HorizontalAlignment="Center" VerticalAlignment="Center" StretchDirection="DownOnly" Stretch="Uniform" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" Source="{Binding Image.Bitmap}" HorizontalAlignment="Center" VerticalAlignment="Center" StretchDirection="DownOnly" Stretch="Uniform" />
+        <Grid Grid.Row="1" >
+            <Button Content="Close" Margin="2" Padding="10 2" HorizontalAlignment="Left" Click="CloseClick" />
+            <Button Content="Save" Margin="2" Padding="10 2" HorizontalAlignment="Right" Click="SaveClick" />
+        </Grid>
     </Grid>
 </Window>
